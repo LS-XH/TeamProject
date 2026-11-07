@@ -1,0 +1,16 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {handleApi} from '../src/server.js';
+const req=(data,headers={})=>new Request('https://example.test/api/plan',{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify(data)});
+const data={source:'应用必须上线运行',mode:'ai',apiKey:'test-not-real',model:'deepseek-chat'};
+const mock=(content,reason='stop')=>async(url,options)=>{assert.equal(url,'https://api.deepseek.com/chat/completions');assert.equal(options.headers.Authorization,'Bearer test-not-real');return Response.json({choices:[{finish_reason:reason,message:{content}}]});};
+test('离线API可实际生成计划，不含密钥',async()=>{const res=await handleApi(req({...data,mode:'rules'}));assert.equal(res.status,200);assert.ok(!(await res.text()).includes('test-not-real'));});
+test('模型接口以模拟响应验证完整协议',async()=>{const res=await handleApi(req(data),{fetch:mock(JSON.stringify({requirements:[{quote:data.source,title:'上线',priority:'P0',acceptance:'访问URL返回200'}]}))});assert.equal(res.status,200);assert.equal((await res.json()).mode,'ai');});
+test('真实模型密钥缺失时明确拒绝',async()=>assert.equal((await handleApi(req({...data,apiKey:''}))).status,400));
+test('无效模式、空正文、过长正文和非法模型名被拒绝',async()=>{for(const patch of [{mode:'fake'},{source:''},{source:'字'.repeat(18001)},{model:'http://localhost'}])assert.equal((await handleApi(req({...data,...patch}))).status,400);});
+test('上游错误不泄露响应正文或密钥',async()=>{const res=await handleApi(req(data),{fetch:async()=>new Response('secret-test-not-real',{status:401})});assert.equal(res.status,502);assert.ok(!(await res.text()).includes('test-not-real'));});
+test('格式错误和截断结果不会变成有效计划',async()=>{for(const [content,finish] of [['bad json','stop'],['{}','length'],['{"requirements":[]}','stop']])assert.equal((await handleApi(req(data),{fetch:mock(content,finish)})).status,502);});
+test('引用捏造在API层被阻止',async()=>{assert.equal((await handleApi(req(data),{fetch:mock('{"requirements":[{"quote":"伪造","title":"a","acceptance":"b"}]}')})).status,502);});
+test('超时反馈明确，且不回显密钥',async()=>{const res=await handleApi(req(data),{fetch:async()=>{const e=new Error('secret');e.name='TimeoutError';throw e;}});assert.equal(res.status,504);});
+test('跨站来源与非法方法被拒绝',async()=>{assert.equal((await handleApi(req(data,{Origin:'https://evil.test'}))).status,403);assert.equal((await handleApi(new Request('https://example.test/api/plan'))).status,405);});
+test('无效JSON和过大请求被拒绝',async()=>{assert.equal((await handleApi(new Request('https://example.test/api/plan',{method:'POST',body:'['}))).status,400);assert.equal((await handleApi(req(data,{'Content-Length':'90000'}))).status,413);});

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+app/
+.env
+.env.*
+!.env.example
+*.tar.gz
+.sites-runtime/
+test-results/
+.sites-*

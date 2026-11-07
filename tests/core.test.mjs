@@ -1,0 +1,18 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {SAMPLE,extractRules,validateRequirements,createProject,audit,validateProject,diffSources,exportMarkdown} from '../src/core.js';
+test('离线提取保留逐字原文，并区分可选项',()=>{const rs=extractRules(SAMPLE);assert.equal(rs.length,13);assert.equal(rs.at(-1).priority,'P2');assert.ok(rs.every(r=>SAMPLE.includes(r.quote)));});
+test('空输入与过多条目拒绝',()=>{assert.throws(()=>extractRules(''));assert.throws(()=>extractRules(Array(81).fill('要求').join('\n')));});
+test('模型捏造引用时拒绝整个结果',()=>{assert.throws(()=>validateRequirements([{title:'需求',quote:'不存在的证据',acceptance:'标准'}],'真实原文'),/原文/);});
+test('模型有效引用通过并规范化ID',()=>{assert.equal(validateRequirements([{title:'需求',quote:'原文',acceptance:'能验证',priority:'P0'}],'原文')[0].id,'R001');});
+test('模型空数组、字段缺失被拒绝',()=>{assert.throws(()=>validateRequirements([],'a'));assert.throws(()=>validateRequirements([{title:'a',quote:'a'}],'a'));});
+test('任务覆盖率与完成率分离',()=>{const p=createProject('要求',extractRules('要求'));assert.equal(audit(p).coverage,100);assert.equal(audit(p).completion,0);p.tasks[0].status='done';assert.equal(audit(p).completion,0);assert.ok(audit(p).issues.some(i=>i.text.includes('缺少交付证据')));p.tasks[0].evidence='提交链接';assert.equal(audit(p).completion,100);});
+test('多个任务必须全部带证据完成才计入完成率',()=>{const p=createProject('要求',extractRules('要求'));p.tasks.push({...p.tasks[0],id:'T002'});Object.assign(p.tasks[0],{status:'done',evidence:'a'});assert.equal(audit(p).completion,0);});
+test('缺少任务与孤立关联会产生提醒',()=>{const p=createProject('要求',extractRules('要求'));p.tasks[0].requirementId='R999';assert.equal(audit(p).coverage,0);assert.ok(audit(p).issues.some(i=>i.text.includes('不存在')));});
+test('截止日比较与未分配负责人检查',()=>{const p=createProject('要求',extractRules('要求'),{deadline:'2026-11-08'});p.tasks[0].due='2026-11-09';assert.ok(audit(p).issues.some(i=>i.text.includes('截止')));assert.ok(audit(p).issues.some(i=>i.text.includes('负责人')));});
+test('可选项不进入必做率分母',()=>{const p=createProject('要求\n可选硬件',extractRules('要求\n可选硬件'));assert.equal(audit(p).total,1);});
+test('可选择平台不意味着可以不做智能体',()=>{assert.equal(extractRules('智能体必须嵌入软件，可选择任意平台')[0].priority,'P0');});
+test('备份往返恢复并拒绝坏关联和重复ID',()=>{const p=createProject('要求',extractRules('要求'));assert.deepEqual(validateProject(JSON.parse(JSON.stringify(p))),p);p.tasks[0].requirementId='bad';assert.throws(()=>validateProject(p));});
+test('备份拒绝重复需求ID与伪造证据',()=>{const p=createProject('要求',extractRules('要求'));p.requirements.push({...p.requirements[0]});assert.throws(()=>validateProject(p));p.requirements.pop();p.requirements[0].quote='捏造';assert.throws(()=>validateProject(p));});
+test('原文变更显示新增与移除',()=>{assert.deepEqual(diffSources('a\nb','b\nc'),{added:['c'],removed:['a']});});
+test('Markdown 转义表格分隔符，并注明规则模式',()=>{const p=createProject('a|b',extractRules('a|b'));const md=exportMarkdown(p);assert.ok(md.includes('a\\|b'));assert.ok(md.includes('非大模型'));assert.ok(md.includes('证据真实性需人工核验'));});
