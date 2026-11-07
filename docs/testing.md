@@ -38,4 +38,6 @@
 
 ## 在线发布
 
-发布后的URL、平台状态和公开HTTP检查单独记录在 `docs/delivery.md`，不把预期URL当成上线成功证据。
+平台返回发布成功，匿名Edge已验证首页、规则计划生成、任务页、博客正文、图片和移动博客布局；浏览器请求健康与资源接口200。机器记录在 [online-results.json](online-results.json)。
+
+普通Node fetch被Cloudflare返回403，不能用它证明浏览器访问失败；这里实际用了匿名浏览器确认。未使用访问令牌绕过权限。发布源提交和CI见 [delivery.md](delivery.md)。线上检查脚本为 `npm run test:online`。

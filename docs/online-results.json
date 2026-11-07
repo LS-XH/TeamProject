@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-08",
+  "base": "https://keti-dazi-lsxh.leoxinghen.chatgpt.site",
+  "results": [
+    {
+      "client": "Node fetch",
+      "status": 403,
+      "note": "Cloudflare rejects this non-browser client; browser checks follow."
+    },
+    {
+      "route": "/health",
+      "status": 200,
+      "client": "browser fetch"
+    },
+    {
+      "route": "/blog",
+      "status": 200,
+      "client": "browser fetch"
+    },
+    {
+      "route": "/style.css",
+      "status": 200,
+      "client": "browser fetch"
+    },
+    {
+      "route": "/client.js",
+      "status": 200,
+      "client": "browser fetch"
+    },
+    {
+      "route": "/media/overview.png",
+      "status": 200,
+      "client": "browser fetch"
+    },
+    {
+      "browser": "anonymous Edge",
+      "homeStatus": 200,
+      "plan": true,
+      "tasks": 13,
+      "blog": true,
+      "blogImages": true,
+      "mobileBlog": true,
+      "errors": []
+    }
+  ]
+}

@@ -44,6 +44,8 @@ npm run validate
 npm run test:e2e
 ```
 
+在线匿名浏览器检查：`npm run test:online`（需本机Edge）。平台可能阻止普通命令行HTTP客户端，脚本同时记录这一差异；在线结果见 [online-results.json](docs/online-results.json)。
+
 ## 连接智能体
 
 点击“智能体设置”，填入自己的DeepSeek API Key和当前有效模型名，再切换为DeepSeek模式。密钥不写入本地项目或备份，刷新即清除。请求正文会经本站转发至DeepSeek；不要发送敏感资料。调用费用属于对应API账户。规则模式无需密钥。
