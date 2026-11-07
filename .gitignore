@@ -8,3 +8,5 @@ app/
 .sites-runtime/
 test-results/
 .sites-*
+.deck-build/
+.codex-finalizer/
