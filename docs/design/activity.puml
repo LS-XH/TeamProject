@@ -1,0 +1,22 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName Microsoft YaHei
+skinparam backgroundColor #FAF9FE
+skinparam dpi 170
+start
+:提交原文和分析模式;
+if (输入有效？) then (是)
+ :规则拆分或调用智能体;
+ if (引用与结构有效？) then (是)
+  :展示需求和关联任务;
+  :人工确认并保存版本;
+  :编辑任务状态和证据;
+  :运行确定性体检;
+ else (否)
+  :提示错误，保留原计划;
+ endif
+else (否)
+ :提示输入问题;
+endif
+stop
+@enduml

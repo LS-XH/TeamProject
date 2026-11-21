@@ -11,6 +11,8 @@
 
 # 课题搭子
 
+[第二次团队作业：原型设计与概要设计](docs/design/blog.md)
+
 把课程作业要求变成可追溯的需求、关联任务与证据验收清单。
 
 [在线使用](https://keti-dazi-lsxh.leoxinghen.chatgpt.site) · [项目博客](https://keti-dazi-lsxh.leoxinghen.chatgpt.site/blog) · [需求说明](docs/SRS.md) · [Planning](Planning.md) · [答辩讲稿](docs/defense.md)

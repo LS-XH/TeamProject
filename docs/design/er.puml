@@ -1,0 +1,21 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName Microsoft YaHei
+skinparam backgroundColor #FAF9FE
+skinparam dpi 170
+entity account
+entity project
+entity membership
+entity source_version
+entity requirement
+entity task
+entity audit_event
+project ||--o{ source_version
+project ||--|{ membership
+account ||--o{ membership
+source_version ||--|{ requirement
+requirement ||--o{ task
+membership |o--o{ task : 指派
+project ||--o{ audit_event
+account ||--o{ audit_event : 操作人
+@enduml

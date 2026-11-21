@@ -1,0 +1,30 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName Microsoft YaHei
+skinparam backgroundColor #FAF9FE
+skinparam dpi 170
+actor 组长
+participant 工作台
+participant 计划服务
+participant 模型适配器
+database 项目仓储
+组长 -> 工作台 : 输入正文并请求生成
+工作台 -> 计划服务 : 生成预览
+alt 智能体模式
+ 计划服务 -> 模型适配器 : 请求结构化需求
+ 模型适配器 --> 计划服务 : JSON 或错误
+else 规则模式
+ 计划服务 -> 计划服务 : 逐条拆分
+end
+计划服务 -> 计划服务 : 校验要求和逐字引用
+alt 成功
+ 计划服务 --> 工作台 : 返回预览
+ 组长 -> 工作台 : 确认保存
+ 工作台 -> 计划服务 : 提交修订号与预览
+ 计划服务 -> 项目仓储 : 原子校验并写入版本
+ 项目仓储 --> 计划服务 : 新版本或冲突
+ 计划服务 --> 工作台 : 状态反馈
+else 失败
+ 计划服务 --> 工作台 : 错误并保留旧计划
+end
+@enduml

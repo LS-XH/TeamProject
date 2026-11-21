@@ -1,0 +1,43 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName Microsoft YaHei
+skinparam backgroundColor #FAF9FE
+skinparam dpi 170
+class Project {
+ id
+ revision
+ state
+}
+class Membership {
+ accountId
+ role
+}
+class Account
+class SourceVersion {
+ version
+ body
+}
+class Requirement {
+ code
+ quote
+ acceptance
+ priority
+}
+class Task {
+ status
+ evidence
+ assigneeId
+}
+class AuditEvent
+class AuditService {
+ inspect()
+}
+Project "1" *-- "0..*" SourceVersion
+Project "1" *-- "1..*" Membership
+Account "1" -- "0..*" Membership
+SourceVersion "1" *-- "1..*" Requirement
+Requirement "1" -- "0..*" Task
+Project "1" -- "0..*" AuditEvent
+AuditService ..> Requirement
+AuditService ..> Task
+@enduml

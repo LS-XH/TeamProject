@@ -1,0 +1,25 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName Microsoft YaHei
+skinparam backgroundColor #FAF9FE
+skinparam dpi 170
+left to right direction
+actor 组长 as O
+actor 编辑者 as E
+actor 查看者 as V
+actor 平台管理员 as A
+rectangle 课题搭子 {
+ (生成计划) as G
+ (安排任务与证据) as T
+ (查看体检和导出) as X
+ (归档或恢复项目) as M
+ (查看操作记录) as L
+}
+O -- G
+O -- T
+E -- T
+E -- X
+V -- X
+A -- M
+A -- L
+@enduml

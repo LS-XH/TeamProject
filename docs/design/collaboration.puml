@@ -1,0 +1,13 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName Microsoft YaHei
+skinparam backgroundColor #FAF9FE
+skinparam dpi 170
+object "后台界面" as B
+object "归档服务" as S
+object "授权检查" as A
+object "项目与审计仓储" as R
+B -right- S : 1 请求归档\n5 返回状态
+S -down- A : 2 核验平台权限
+S -right- R : 3 检查状态并同事务写入\n4 返回提交结果
+@enduml
